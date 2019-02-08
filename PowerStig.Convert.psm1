@@ -46,6 +46,7 @@ Export-ModuleMember -Function @(
     'ConvertFrom-StigXccdf',
     'ConvertTo-PowerStigXml',
     'Compare-PowerStigXml',
+    'Compare-Stig',
     'Get-ConversionReport',
     'Split-StigXccdf'
 )
