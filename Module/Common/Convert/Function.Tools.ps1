@@ -1,3 +1,28 @@
+<#
+.SYNOPSIS
+    Compares a STIG against an already processed STIG
+
+.DESCRIPTION
+Compare-Stig will compares a processed STIG against an unprocessed STIG of either the same or a different version
+of a STIG to see what, if any, changes have occured. Changes can be from differences in new versions of a STIG
+or if the parsing process has changed.
+
+.PARAMETER StigXmlPath
+    The path to the already processed XML STIG
+
+.PARAMETER StigXccdfPath
+    Optional parameter to the unprocessed STIG to compare.
+
+.PARAMETER XccdfVersion
+    Optional parameter to define the version of unprocessed STIG to compare.
+
+.EXAMPLE
+    In this example we compare an XML STIG against a new version.
+        Compare-Stig -StigXmlPath 'C:\Temp\U_Windows_2012_and_2012_R2_MS_STIG_V2R14_Manual-xccdf.xml' -Version 2.15
+
+.NOTES
+    If no 'Version' or 'StigXccdfPath' are provided, the function will compare the same version as the provided 'StigXmlPath'
+#>
 function Compare-Stig
 {
     [CmdletBinding()]
@@ -30,7 +55,7 @@ function Compare-Stig
         $StigXccdfPath = Get-StigXccdfPath -StigXmlPath $StigXmlPath -Version $XccdfVersion
     }
     # Get path to the temporary STIG conversion to remove later.
-    $unmatchedPath = ConvertTo-PowerStigXml -Path $StigXccdfPath -IncludeRawString -Destination $env:TEMP
+    $unmatchedPath = ConvertTo-PowerStigXml -Path $StigXccdfPath -Destination $env:TEMP
     $differenceStigPath = (Select-String -InputObject $unmatchedPath -Pattern "(?<=Converted Output: ).*").Matches.Value
 
     [xml] $newStigContent = Get-Content -Path $differenceStigPath
@@ -48,7 +73,7 @@ function Compare-Stig
                 $newRuleType = Get-NewRuleType -Id $referenceRule.id -StigContent $newStigContent
                 if ($null -ne $newRuleType)
                 {
-                    $ruleResults.RuleTypeChange += [ordered]@{
+                    $ruleResults.RuleTypeChange += New-Object -TypeName psobject -Property @{
                         RuleId       = $referenceRule.Id
                         NewRuleType  = $newRuleType.RuleType
                         OldRuleType  = $referenceRule.ToString()
@@ -65,9 +90,11 @@ function Compare-Stig
                 {
                     $difference.NewRawString = $differenceRule.RawString
                     $difference.OldRawString = $referenceRule.RawString
-                    
+
+                    $differenceObject = New-Object -TypeName psobject -Property $difference
+
                     Write-Verbose -Message "Rule $($differenceRule.id) has been changed."
-                    $ruleResults.RuleValueChange += $difference
+                    $ruleResults.RuleValueChange += $differenceObject
                 }
                 else
                 {
@@ -91,14 +118,31 @@ function Compare-Stig
     return $ruleResults
 }
 
+<#
+.SYNOPSIS
+    Compares the reference rule against the difference rule.
+
+.PARAMETER ReferenceRule
+    The processed STIG rule to be compared against
+
+.PARAMETER DifferenceRule
+    Newly Processed STIG rule to compare
+
+.PARAMETER RuleType
+    Rule Type of the rule function is comparing.
+#>
 function Compare-StigRule
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $ReferenceRule,
 
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $DifferenceRule,
 
         [Parameter(Mandatory = $true)]
@@ -136,28 +180,70 @@ function Compare-StigRule
     }
 }
 
+<#
+.SYNOPSIS
+    Returns a list of property names to compare.
+
+.PARAMETER Rule
+    Rule to get a list of paroperties from.
+#>
 function Get-RuleProperty
 {
+    [CmdletBinding()]
+    [OutputType([System.Object[]])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $Rule
     )
 
+    $toRemove = @(
+        'IsNullOrEmpty',
+        'Severity',
+        'Title',
+        'dscresource',
+        'RawString'
+    )
+
     $propertyNames = (Get-Member -InputObject $Rule | Where-Object -FilterScript {$_.MemberType -eq 'Property'}).Name
-    $propertyNames = $propertyNames | Where-Object -FilterScript {$_ -notin $propertiesToRemove}
+    $propertyNames = $propertyNames | Where-Object -FilterScript {$_ -notin $toRemove}
 
     return $propertyNames
 }
 
+<#
+.SYNOPSIS
+    Returns the difference between properties
+
+.DESCRIPTION
+    If a difference is found between properties, an object is returned containing 
+    the new and old properties. If no difference is found, nothing is returned
+
+.PARAMETER ReferenceRule
+    Reference Rule to compare against
+
+.PARAMETER DifferenceRule
+    Difference rule to compare against the reference rule.
+
+.PARAMETER PropertyName
+    Name of the property to compare.
+
+.PARAMETER RuleType
+    Type of rule being compared
+#>
 function Compare-Property
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $ReferenceRule,
 
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $DifferenceRule,
 
         [Parameter(Mandatory = $true)]
@@ -196,8 +282,24 @@ function Compare-Property
     }
 }
 
+<#
+.SYNOPSIS
+    Returns a boolean where the properties are different
+
+.DESCRIPTION
+    Some properties are not a straight comparison and need to be adjusted
+    for accurate results.
+
+.PARAMETER ReferenceProperty
+    Property to be compared against.
+
+.PARAMETER DifferenceProperty
+    Property to campare against the reference property.
+#>
 function Test-Property
 {
+    [CmdletBinding()]
+    [OutputType([Bool])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -234,14 +336,34 @@ function Test-Property
     return $return
 }
 
+<#
+.SYNOPSIS
+    Compares properties that have nested attributes
+
+.PARAMETER ReferenceRule
+    Reference Rule to compare against
+
+.PARAMETER DifferenceRule
+    Difference rule to compare against the reference rule.
+
+.PARAMETER PropertyName
+    Name of property to compare.
+
+.PARAMETER RuleType
+    Type of rule being compared.
+#>
 function Compare-NestedPropertyRule
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $ReferenceRule,
 
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $DifferenceRule,
 
         [Parameter(Mandatory = $true)]
@@ -290,14 +412,28 @@ function Compare-NestedPropertyRule
     }
 }
 
+<#
+.SYNOPSIS
+    Compares Access Control Entries from AccessControlRules
+
+.PARAMETER ReferenceList
+    Access Control List to compare against.
+
+.PARAMETER DifferenceList
+    Access Control List to compare against the reference ACL
+#>
 function Compare-AccessControl
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Object[]]
         $ReferenceList,
 
         [Parameter(Mandatory = $true)]
+        [System.Object[]]
         $DifferenceList
     )
     
@@ -352,8 +488,20 @@ function Compare-AccessControl
     $null = return
 }
 
+<#
+.SYNOPSIS
+    Returns a collection of rules Id's that have been added or removed.
+
+.PARAMETER NewId
+    Array of id's to compare from the newly processsed STIG
+
+.PARAMETER OldId
+    Array of Id's from the processed STIG XML
+#>
 function Get-AddedOrRemovedRuleId
 {
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -373,17 +521,37 @@ function Get-AddedOrRemovedRuleId
     return $returnId
 }
 
+<#
+.SYNOPSIS
+    Returns a list of rule types from the STIG beign processed.
+
+.PARAMETER DisaStigContent
+    Content of the STIG being processed
+#>
 function Get-RuleType
 {
+    [CmdletBinding()]
+    [OutputType([System.Object[]])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlElement]
         $DisaStigContent
     )
 
     return (Get-Member -InputObject $DisaStigContent | Where-Object -FilterScript {$_.Name -match '.*Rule'}).Name
 }
 
+<#
+.SYNOPSIS
+    Checks to see if a rule has changed type.
+
+.PARAMETER Id
+    Rule Id to check.
+
+.PARAMETER StigContent
+    STIG Content to process.
+#>
 function Get-NewRuleType
 {
     param
@@ -417,11 +585,21 @@ function Get-NewRuleType
     $null = return
 } 
 
+<#
+.SYNOPSIS
+    Returns the list of STIG id's from STIG content
+
+.PARAMETER StigContent
+    Content of the STIG to process.
+#>
 function Get-AllStigId
 {
+    [CmdletBinding()]
+    [OutputType([System.Object[]])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]
         $StigContent
     )
 
@@ -437,8 +615,21 @@ function Get-AllStigId
     return $ruleId
 }
 
+<#
+.SYNOPSIS
+    Returns the approate STIG XCCDF path to convert
+
+.PARAMETER StigXmlPath
+    XML Path to test against.
+
+.PARAMETER Version
+    Version of the XCCDF to convert and compare.
+#>
+
 function Get-StigXccdfPath
 {
+    [CmdletBinding()]
+    [OutputType([string])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -458,14 +649,20 @@ function Get-StigXccdfPath
     {
         $xmlTitle = ($StigXmlPath.Split('\')[-1]).Trim('.xml')
         $xmlSplit = $xmlTitle.Split('-')
-        $versionSplit = $xmlSplit[3].Split('.')
+        $versionPlace = $xmlSplit.Count - 1
+        $versionSplit = $xmlSplit[$versionPlace].Split('.')
     }
 
     $stigVersion = "V$($versionSplit[0])R$($versionSplit[1])"
 
     [xml] $xmlContent = Get-Content -Path $StigXmlPath
     $stigId = $xmlContent.DISASTIG.Id
-    $archives = Get-ChildItem -Path "$script:PsScriptRoot\StigData\Archive" -Recurse -Include "*.xml" | Where-Object -FilterScript {$_.Name -match ".*$stigVersion"}
+    if ($null -eq $stigId)
+    {
+        $stigId = $xmlContent.DisaStig.StigId
+    }
+
+    $archives = Get-ChildItem -Path "$Script:PSScriptRoot\..\..\StigData\Archive" -Recurse -Include "*.xml" | Where-Object -FilterScript {$_.Name -match ".*$stigVersion"}
     
     foreach ($stig in $archives)
     {
@@ -478,5 +675,5 @@ function Get-StigXccdfPath
         }
     }
 
-    throw -Message "Cannot find xccdf for $xmlTitle. Please verify the desired xccdf is in the 'Archive' folder."
+    throw "Cannot find xccdf for $xmlTitle. Please verify the desired xccdf is in the 'Archive' folder."
 }
