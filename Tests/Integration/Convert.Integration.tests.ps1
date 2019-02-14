@@ -13,10 +13,12 @@ foreach ($stig in $latestStigs)
 {
     Describe "$($stig.Name)" {
         Context "When $($stig.Name) is converted" {
+            $result = Compare-Stig -StigXmlPath $stig.Fullname
             It 'Should not return any changed values from the currently stored STIGs.' {
-                $result = Compare-Stig -StigXmlPath $stig.Fullname
-
-                $result.RuleValueChange | Should -Be $null
+                $result.RuleValueChange.id | Should -Be $null
+            }
+            It 'Should not have any changed rule types' {
+                $result.RuleTypeChange.RuleId | Should -Be $null
             }
         }
     }
