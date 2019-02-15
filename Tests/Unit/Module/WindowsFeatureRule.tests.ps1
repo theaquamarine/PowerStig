@@ -5,37 +5,38 @@ using module .\..\..\..\Module\Rule.WindowsFeature\Convert\WindowsFeatureRule.Co
 try
 {
     InModuleScope -ModuleName "$($script:moduleName).Convert" {
-        #region Test Setup
-        $stigRule = Get-TestStigRule -ReturnGroupOnly
-        $rule = [WindowsFeatureRuleConvert]::new( $stigRule )
+        #region Test Data
+        $testRuleList = @(
+            @{
+                FeatureName = 'TelnetClient'
+                InstallState = 'Absent'
+                OrganizationValueRequired = $false
+                CheckContent = 'The "Telnet Client" is not installed by default.  Verify it has not been installed.
+
+                Navigate to the Windows\System32 directory.
+
+                If the "telnet" application exists, this is a finding.'
+            },
+            @{
+                FeatureName = 'Web-DAV-Publishing'
+                InstallState = 'Absent'
+                OrganizationValueRequired = $false
+                CheckContent = 'Open the IIS 8.5 Manager.
+
+                Click the IIS 8.5 web server name.
+
+                Review the features listed under the “IIS" section.
+
+                If the "WebDAV Authoring Rules" icon exists, this is a finding.'
+            }
+        )
         #endregion
-        #region Class Tests
-        Describe "$($rule.GetType().Name) Child Class" {
-
-            Context 'Base Class' {
-
-                It 'Shoud have a BaseType of Rule' {
-                    $rule.GetType().BaseType.ToString() | Should Be 'WindowsFeatureRule'
-                }
-            }
-
-            Context 'Class Properties' {
-
-                $classProperties = @('FeatureName', 'InstallState')
-
-                foreach ( $property in $classProperties )
-                {
-                    It "Should have a property named '$property'" {
-                        ( $rule | Get-Member -Name $property ).Name | Should Be $property
-                    }
-                }
-            }
+        Foreach ($testRule in $testRuleList)
+        {
+            . .\Convert.CommonTests.ps1
         }
-        #endregion
-        #region Method Tests
 
-        #endregion
-        #region Data Tests
+        #region Add Custom Tests Here
 
         #endregion
     }
