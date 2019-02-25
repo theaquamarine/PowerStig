@@ -894,6 +894,13 @@ function Test-MultipleRegistryEntries
 
     if (Test-SingleLineStigFormat -CheckContent $checkContent)
     {
+        if ($CheckContent -match 'McAfee' -and
+            $CheckContent -match '\(32-bit\)' -and
+            $CheckContent -match '\(64-bit\)')
+        {
+                return $false
+        }
+
         $matches = $checkContent | Select-String -Pattern "(HKLM|HKCU)\\" -AllMatches
 
         if ($matches.Matches.Count -gt 1 -and $matches -match 'outlook\\security')
