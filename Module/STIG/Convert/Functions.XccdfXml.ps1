@@ -167,7 +167,14 @@ function Get-RegistryRuleExpressions
     Process
     {
         # Load specific and core expression sets
-        $spSupportFileList = Get-ChildItem -Path $PSScriptRoot -Exclude $spExclude -Recurse -Include $spInclude | Sort-Object -Descending
+        $childItemParams = @{
+            Path = "$PSScriptRoot\..\..\Rule\Convert"
+            Exclude = $spExclude
+            Include = $spInclude
+            Recurse = $true
+        }
+
+        $spSupportFileList = Get-ChildItem @childItemParams | Sort-Object -Descending
         Clear-Variable SingleLine* -Scope Global
         foreach ($supportFile in $spSupportFileList)
         {
@@ -416,8 +423,10 @@ function Get-RuleChangeLog
             NewText = $newText
         }
 
-        # Some rule have multiple changes that need to be made, so if a ruel already
-        # has a change, then add the next change to the value (array)
+        <# 
+           Some rule have multiple changes that need to be made, so if a ruel already
+           has a change, then add the next change to the value (array)
+        #>
         if ($updateList.ContainsKey($id))
         {
             $null = $updateList[$id] += $changeObject

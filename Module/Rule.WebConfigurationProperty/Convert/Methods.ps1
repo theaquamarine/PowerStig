@@ -5,7 +5,7 @@
     .SYNOPSIS
         Returns the ConfigSection property for the STIG rule.
 
-    .Parameter CheckContent
+    .PARAMETER CheckContent
         An array of the raw string data taken from the STIG setting.
 #>
 function Get-ConfigSection
@@ -40,10 +40,6 @@ function Get-ConfigSection
         { $cleanCheckContent -match '\.NET Trust Level' }
         {
             $configSection = '/system.web/trust'
-        }
-        { $cleanCheckContent -match 'SSL Settings' }
-        {
-            $configSection = '/system.webServer/security/access'
         }
         { $cleanCheckContent -match '\.NET Compilation' }
         {
@@ -103,7 +99,7 @@ function Get-ConfigSection
     .SYNOPSIS
         Returns the key and value properties for the STIG rule.
 
-    .Parameter CheckContent
+    .PARAMETER CheckContent
         An array of the raw string data taken from the STIG setting.
 #>
 function Get-KeyValuePair
@@ -132,11 +128,6 @@ function Get-KeyValuePair
         {
             $key = 'enabled'
             $value = 'false'
-        }
-        { $checkContent -match 'SSL Settings' }
-        {
-            $key = 'sslflags'
-            $value = 'Ssl,SslNegotiateCert,SslRequireCert,Ssl128'
         }
         { $checkContent -match '\.NET Compilation' }
         {
@@ -245,7 +236,7 @@ function Get-KeyValuePair
     .SYNOPSIS
         Tests to see if the stig rule needs to be split into multiples.
 
-    .Parameter CheckContent
+    .PARAMETER CheckContent
         An array of the raw string data taken from the STIG setting.
 #>
 function Test-MultipleWebConfigurationPropertyRule
@@ -311,7 +302,7 @@ function Test-MultipleWebConfigurationPropertyRule
     .SYNOPSIS
         Splits a STIG setting into multiple rules when necessary.
 
-    .Parameter CheckContent
+    .PARAMETER CheckContent
         An array of the raw string data taken from the STIG setting.
 #>
 function Split-MultipleWebConfigurationPropertyRule
@@ -422,7 +413,7 @@ function Split-MultipleWebConfigurationPropertyRule
     .PARAMETER Key
         Key property from the WebConfigurationPropertyRule.
 #>
-function Get-OrganizationValueTestString
+function Get-WebConfigOrganizationValueTestString
 {
     [CmdletBinding()]
     [OutputType([string])]
@@ -432,7 +423,7 @@ function Get-OrganizationValueTestString
         [string]
         $Key
     )
-
+    # TO DO - This should not be a static list
     switch ( $Key )
     {
         { $PsItem -match 'maxUrl' }

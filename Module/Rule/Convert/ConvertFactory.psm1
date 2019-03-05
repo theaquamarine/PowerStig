@@ -23,6 +23,8 @@ using module .\..\..\Rule.WebConfigurationProperty\Convert\WebConfigurationPrope
 using module .\..\..\Rule.WindowsFeature\Convert\WindowsFeatureRule.Convert.psm1
 using module .\..\..\Rule.WinEventLog\Convert\WinEventLogRule.Convert.psm1
 using module .\..\..\Rule.Wmi\Convert\WmiRule.Convert.psm1
+using module .\..\..\Rule.SslSettings\Convert\SslSettingsRule.Convert.psm1
+
 # Header
 
 class SplitFactory
@@ -215,6 +217,12 @@ class ConvertFactory
                     [WmiRuleConvert]::new($Rule).AsRule()
                 )
             }
+            {[SslSettingsRuleConvert]::Match($PSItem)}
+            {
+                $null = $ruleTypeList.Add(
+                    [SslSettingsRuleConvert]::new($Rule).AsRule()
+                )
+            }
             <#
                 Some rules have a documentation requirement only for exceptions,
                 so the DocumentRule needs to be at the end of the switch as a
@@ -235,8 +243,10 @@ class ConvertFactory
             }
         }
 
-        # Rules can be split into multiple rules of multiple types, so the list
-        # of Id's needs to be validated to be unique.
+         <# 
+         Rules can be split into multiple rules of multiple types, so the list
+         of Id's needs to be validated to be unique.
+         #>
         $ruleCount = ($ruleTypeList | Measure-Object).count
         $uniqueRuleCount = ($ruleTypeList |
             Select-Object -Property Id -Unique |

@@ -78,16 +78,16 @@ Configuration IisServer
     . "$resourcePath\windows.Script.skip.ps1"
     ##### END DO NOT MODIFY #####
 
-    Import-DscResource -ModuleName AccessControlDsc -ModuleVersion 1.2.0.0
+    Import-DscResource -ModuleName AccessControlDsc -ModuleVersion 1.3.0.0
     . "$resourcePath\windows.AccessControl.ps1"
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration -ModuleVersion 1.1
-    . "$resourcePath\windows.WindowsFeature.ps1"
 
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.3.0.0
     . "$resourcePath\windows.xRegistry.ps1"
+    . "$resourcePath\windows.xWindowsFeature.ps1"
 
-    Import-DscResource -ModuleName xWebAdministration -ModuleVersion 2.3.0.0
+    Import-DscResource -ModuleName xWebAdministration -ModuleVersion 2.5.0.0
     . "$resourcePath\windows.xIisMimeTypeMapping.ps1"
     . "$resourcePath\windows.xWebConfigProperty.ps1"
     . "$resourcePath\windows.xIisLogging.ps1"

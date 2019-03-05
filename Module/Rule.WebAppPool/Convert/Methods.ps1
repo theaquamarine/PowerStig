@@ -5,7 +5,7 @@
     .SYNOPSIS
         Returns the key and value properties for the STIG rule.
 
-    .Parameter CheckContent
+    .PARAMETER CheckContent
         An array of the raw string data taken from the STIG setting.
 #>
 function Get-KeyValuePair
@@ -72,7 +72,7 @@ function Get-KeyValuePair
     .PARAMETER Key
         Key property from the WebAppPoolrule.
 #>
-function Get-OrganizationValueTestString
+function Get-WebAppPoolOrganizationValueTestString
 {
     [CmdletBinding()]
     [OutputType([string])]
@@ -83,6 +83,7 @@ function Get-OrganizationValueTestString
         $Key
     )
 
+    # TO DO - This should not be a static list
     switch ( $Key )
     {
         { $PsItem -match 'idleTimeout' }

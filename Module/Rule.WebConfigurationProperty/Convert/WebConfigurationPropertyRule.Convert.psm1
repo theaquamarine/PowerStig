@@ -123,7 +123,7 @@ Class WebConfigurationPropertyRuleConvert : WebConfigurationPropertyRule
     #>
     [void] SetOrganizationValueTestString ()
     {
-        $thisOrganizationValueTestString = Get-OrganizationValueTestString -Key $this.key
+        $thisOrganizationValueTestString = Get-WebConfigOrganizationValueTestString -Key $this.key
 
         if (-not $this.SetStatus($thisOrganizationValueTestString))
         {
@@ -165,7 +165,8 @@ Class WebConfigurationPropertyRuleConvert : WebConfigurationPropertyRule
                 $CheckContent -NotMatch 'HKLM' -and
                 $CheckContent -NotMatch 'Authorization Rules' -and
                 $CheckContent -NotMatch 'regedit <enter>' -and
-                $CheckContent -NotMatch 'Enable proxy'
+                $CheckContent -NotMatch 'Enable proxy' -and
+                $CheckContent -NotMatch 'SSL Settings'
             )
         )
         {

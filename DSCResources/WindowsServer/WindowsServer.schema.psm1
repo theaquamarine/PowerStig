@@ -95,7 +95,7 @@ Configuration WindowsServer
     . "$resourcePath\windows.Script.skip.ps1"
     ##### END DO NOT MODIFY #####
 
-    Import-DscResource -ModuleName AccessControlDsc -ModuleVersion 1.2.0.0
+    Import-DscResource -ModuleName AccessControlDsc -ModuleVersion 1.3.0.0
     . "$resourcePath\windows.AccessControl.ps1"
 
     Import-DscResource -ModuleName AuditPolicyDsc -ModuleVersion 1.2.0.0
@@ -106,7 +106,6 @@ Configuration WindowsServer
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration -ModuleVersion 1.1
     . "$resourcePath\windows.Script.wmi.ps1"
-    . "$resourcePath\windows.WindowsFeature.ps1"
 
     Import-DscResource -ModuleName SecurityPolicyDsc -ModuleVersion 2.4.0.0
     . "$resourcePath\windows.AccountPolicy.ps1"
@@ -116,4 +115,5 @@ Configuration WindowsServer
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -ModuleVersion 8.3.0.0
     . "$resourcePath\windows.xService.ps1"
     . "$resourcePath\windows.xRegistry.ps1"
+    . "$resourcePath\windows.xWindowsFeature.ps1"
 }
