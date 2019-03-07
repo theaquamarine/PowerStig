@@ -114,6 +114,13 @@ function Get-SLRegistryPath
                         return
                     }
                 }
+                Join
+                {
+                    if (($fullRegistryPath -join ' ') -match $Hashtable.Item($key))
+                    {
+                        Write-host 'test'
+                    }
+                }
                 Match
                 {
                     if ($fullRegistryPath -match $Hashtable.Item($key))

@@ -898,7 +898,7 @@ function Test-MultipleRegistryEntries
             $CheckContent -match '\(32-bit\)' -and
             $CheckContent -match '\(64-bit\)')
         {
-                return $false
+            return $false
         }
 
         $matches = $checkContent | Select-String -Pattern "(HKLM|HKCU)\\" -AllMatches
