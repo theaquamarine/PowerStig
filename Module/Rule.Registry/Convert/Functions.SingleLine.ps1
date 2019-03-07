@@ -118,7 +118,8 @@ function Get-SLRegistryPath
                 {
                     if (($fullRegistryPath -join ' ') -match $Hashtable.Item($key))
                     {
-                        Write-host 'test'
+                        $CheckContent = $CheckContent -join ''
+                        continue
                     }
                 }
                 Match
@@ -162,6 +163,7 @@ function Get-SLRegistryPath
         }
 
         $result = $matchedRegistryPath.ToString().trim(' ', '.')
+        $result = $result.Replace('\\','\')
 
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Trimmed path : $result"
         Set-RegistryPatternLog -Pattern $regEx

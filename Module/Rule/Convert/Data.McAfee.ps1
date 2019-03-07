@@ -7,10 +7,9 @@
     from MOST Restrive to LEAST Restrictive, similar to exception handling.  Also, ensure only
     UNIQUE Keys are used in each hashtable to prevent errors and conflicts.
 #>
-$global:SingleLineRegistryPath =+ [ordered]@{
+$global:SingleLineRegistryPath += [ordered]@{
     McAfee1 = [ordered]@{
-        Join = 'HKLM\Software\Wow6432Node\McAfee'
-        Match = '\(32-bit\)'
-        Match2 = '\(64-bit\)'
+        Join = 'HKLM\\Software\\Wow6432Node\\McAfee'
+        Select = 'HKLM\\Software\\Wow6432Node\\McAfee.*(?=\s*Criteria)'
     }
 }

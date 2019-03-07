@@ -894,9 +894,7 @@ function Test-MultipleRegistryEntries
 
     if (Test-SingleLineStigFormat -CheckContent $checkContent)
     {
-        if ($CheckContent -match 'McAfee' -and
-            $CheckContent -match '\(32-bit\)' -and
-            $CheckContent -match '\(64-bit\)')
+        if (($CheckContent -join ' ') -match '.*McAfee.*32-bit.*Wow6432Node.*')
         {
             return $false
         }

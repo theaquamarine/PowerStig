@@ -646,6 +646,11 @@ function Split-BenchmarkId
             $returnId = 'DotNetFramework_4'
             continue
         }
+        {$PSItem -match 'McAfee'}
+        {
+            $returnId = 'McAfee_All_VirusScan88Client'
+            continue
+        }
         default
         {
             $returnId = $id
