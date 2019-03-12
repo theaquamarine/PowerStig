@@ -201,9 +201,11 @@ function Get-RegistryValueTypeFromSingleLineStig
         $value = Get-RegistryValueTypeFromSLStig -CheckContent $CheckContent -Hashtable $item
         if ([String]::IsNullOrEmpty($value) -eq $false)
         {
-            return $value
+            break
         }
     }
+
+    return $value
 }
 
 <#
@@ -231,7 +233,7 @@ function Get-RegistryValueTypeFromSLStig
         $Hashtable
     )
 
-    $valueName = Get-RegistryValueNameFromSingleLineStig -CheckContent $CheckContent
+    $valueName = $this.ValueName
 
     foreach ($key in $Hashtable.Keys)
     {
@@ -282,6 +284,7 @@ function Get-RegistryValueTypeFromSLStig
                         $valueType = $selectedValueType.Matches.Groups[$Hashtable.Item('Group')].Value
                     }
                     Set-RegistryPatternLog -Pattern $Hashtable.Item($key)
+                    break
                 }
             }
         } # Switch
@@ -332,9 +335,11 @@ function Get-RegistryValueNameFromSingleLineStig
         $value = Get-RegistryValueNameFromSLStig -CheckContent $CheckContent -Hashtable $item
         if ([String]::IsNullOrEmpty($value) -eq $false)
         {
-            return $value
+            break
         }
     }
+
+    return $value
 }
 <#
     .SYNOPSIS

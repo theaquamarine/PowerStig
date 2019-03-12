@@ -9,7 +9,14 @@
 #>
 $global:SingleLineRegistryPath += [ordered]@{
     McAfee1 = [ordered]@{
-        Join = 'HKLM\\Software\\Wow6432Node\\McAfee'
+        Join   = 'HKLM\\Software\\Wow6432Node\\McAfee'
         Select = 'HKLM\\Software\\Wow6432Node\\McAfee.*(?=\s*Criteria)'
+    }
+}
+
+$global:SingleLineRegistryValueName += [ordered]@{
+    McAfee1 = [ordered]@{
+        Match  = 'HKLM\\Software\\Wow6432Node\\McAfee'
+        Select = '(?<=If the value of\s).*?(?=\sis)'
     }
 }
