@@ -287,6 +287,28 @@ function Get-RegistryValueTypeFromSLStig
                     break
                 }
             }
+            Add
+            {
+                $regEx = $Hashtable.Item($key) -f [regex]::escape($valueName)
+                $match = Select-String -InputObject $CheckContent -Pattern $regEx
+                if ($match)
+                {
+                    switch ($match.Matches.Value)
+                    {
+                        {$PSItem -match '\d+'}
+                        {
+                            $valueType = 'DWORD'
+                        }
+                    }
+                    
+                    Set-RegistryPatternLog -Pattern $Hashtable.Item($key)
+                    break
+                }
+                else 
+                {
+                    return
+                }
+            }
         } # Switch
     } # Foreach
 
@@ -365,8 +387,6 @@ function Get-RegistryValueNameFromSLStig
         [psobject]
         $Hashtable
     )
-
-    $valueName = $CheckContent
 
     foreach ($key in $Hashtable.Keys)
     {
@@ -485,7 +505,7 @@ function Get-RegistryValueDataFromSLStig
         $Hashtable
     )
 
-    $valueType = Get-RegistryValueTypeFromSingleLineStig -CheckContent $CheckContent
+    $valueType = $this.ValueType
 
     if ($valueType -eq "Does Not Exist")
     {
@@ -527,6 +547,16 @@ function Get-RegistryValueDataFromSLStig
                 {
                     $valueData = $result[0]
                     Set-RegistryPatternLog -Pattern $Hashtable.Item($key)
+                }
+            }
+            Add
+            {
+                $regEx = $Hashtable.Item($key) -f [regex]::escape($this.ValueName)
+                $match = $CheckContent | Select-String -Pattern $regEx
+
+                if ($match)
+                {
+                    $valueType = $this.ValueName
                 }
             }
         } # Switch

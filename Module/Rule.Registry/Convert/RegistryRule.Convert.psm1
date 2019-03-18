@@ -374,7 +374,9 @@ Class RegistryRuleConvert : RegistryRule
             ) -or
             (
                 $CheckContent -Match "Windows Registry Editor" -and
-                $CheckContent -Match "HKLM|HKCU"
+                $CheckContent -Match "HKLM|HKCU" -and
+                $CheckContent -NotMatch "under the applicable GUID key" -and
+                $CheckContent -NotMatch 'Not Applicable to 64-bit systems'
             ) -or
             (
                 $CheckContent -Match "HKLM|HKCU" -and

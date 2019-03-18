@@ -17,6 +17,22 @@ $global:SingleLineRegistryPath += [ordered]@{
 $global:SingleLineRegistryValueName += [ordered]@{
     McAfee1 = [ordered]@{
         Match  = 'HKLM\\Software\\Wow6432Node\\McAfee'
-        Select = '(?<=If the value of\s).*?(?=\sis)'
+        Select = '(?<=If the (|value\s)(|of\s|for\s))\w*?(?=\s(is|does|>=))'
+    }
+}
+
+$global:SingleLineRegistryValueType += [ordered]@{
+    McAfee1 = [ordered]@{
+        Add = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+'
+    }
+    McAfee2 = [ordered]@{
+        Select = '(?<=If the value of {0} >= to\s)\w+'
+    }
+}
+
+$global:SingleLineRegistryValueData += [ordered]@{
+    McAfee1 = [ordered]@{
+        Add    = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+'
+        Select = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+'
     }
 }
