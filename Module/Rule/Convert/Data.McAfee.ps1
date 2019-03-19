@@ -32,7 +32,7 @@ $global:SingleLineRegistryValueType += [ordered]@{
 
 $global:SingleLineRegistryValueData += [ordered]@{
     McAfee1 = [ordered]@{
-        Add    = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+'
+        Add    = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+(?!\sand])'
         Select = '(?<=If the (|value\s)(|of\s|for\s){0}[^>=]*("|))\d+'
     }
 }

@@ -1402,8 +1402,8 @@ SystemCore\VSCore\On Access Scanner\BehaviourBlocking
 Criteria:  If the value of VSIDBlockTimeout &gt;= to HEX 1E, this is not a finding.
 </RawString>
       <ValueData>30</ValueData>
-      <ValueName />
-      <ValueType>Dword</ValueType>
+      <ValueName>VSIDBlockTimeout</ValueName>
+      <ValueType />
     </Rule>
     <Rule id="V-14621" severity="medium" conversionstatus="pass" title="DTAM093-McAfee VirusScan on-access scan blocking" dscresource="xRegistry">
       <Description>&lt;VulnDiscussion&gt;Containment during a virus outbreak is crucial. Infected hosts may attempt to spread malware and will use every network path available to them when spreading that infection. By containing the system when a detection is found, the malware will be restricted to that one system. Likewise, if malware is detected in a shared folder, maintaining the connection between a system and the shared folder would allow the malware to spread. Placing temporary restrictions on network connectivity is an effective mitigation mechanism. 
