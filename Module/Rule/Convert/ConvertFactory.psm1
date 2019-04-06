@@ -24,6 +24,7 @@ using module .\..\..\Rule.WindowsFeature\Convert\WindowsFeatureRule.Convert.psm1
 using module .\..\..\Rule.WinEventLog\Convert\WinEventLogRule.Convert.psm1
 using module .\..\..\Rule.Wmi\Convert\WmiRule.Convert.psm1
 using module .\..\..\Rule.SslSettings\Convert\SslSettingsRule.Convert.psm1
+using module .\..\..\Rule.nxService\Convert\nxServiceRule.Convert.psm1
 
 # Header
 
@@ -94,6 +95,20 @@ class ConvertFactory
     static [System.Collections.ArrayList] Rule ([xml.xmlelement] $Rule)
     {
         [System.Collections.ArrayList] $ruleTypeList = @()
+
+        # Check to see if processing RHEL STIG so we can evaluate fixtext instead of check-content
+        if ($Rule.rule.version -match '^RHEL-07')
+        {
+            switch ($Rule.rule.fixtext.'#text')
+            {
+                {[nxServiceRuleConvert]::Match($PSItem)}
+                {
+                    $null = $ruleTypeList.Add(
+                        [nxServiceRuleConvert]::new($Rule).AsRule()
+                    )
+                }
+            }
+        }
 
         switch ($Rule.rule.check.'check-content')
         {
@@ -215,6 +230,12 @@ class ConvertFactory
             {
                 $null = $ruleTypeList.Add(
                     [WmiRuleConvert]::new($Rule).AsRule()
+                )
+            }
+            {[SslSettingsRuleConvert]::Match($PSItem)}
+            {
+                $null = $ruleTypeList.Add(
+                    [SslSettingsRuleConvert]::new($Rule).AsRule()
                 )
             }
             {[SslSettingsRuleConvert]::Match($PSItem)}
